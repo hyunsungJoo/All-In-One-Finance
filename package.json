@@ -1,0 +1,12 @@
+{
+  "name": "all-in-one-finance",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend/demo && ./gradlew bootRun",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently -n backend,frontend -c auto \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
