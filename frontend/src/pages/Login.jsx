@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 
 export default function Login({ onSwitchToSignup, onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -7,6 +8,14 @@ export default function Login({ onSwitchToSignup, onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    return saved ? saved === "dark" : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -49,62 +58,68 @@ export default function Login({ onSwitchToSignup, onLoginSuccess }) {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <div style={{ marginBottom: 18 }}>
-          <h1 style={styles.title}>로그인</h1>
-          <p style={styles.subTitle}>All-In-One-Finance에 오신 것을 환영합니다.</p>
+    <div style={isDark ? styles.container.dark : styles.container.light}>
+      <div style={isDark ? styles.card.dark : styles.card.light}>
+        <div style={styles.header}>
+          <h1 style={isDark ? styles.title.dark : styles.title.light}>로그인</h1>
+          <p style={isDark ? styles.subtitle.dark : styles.subtitle.light}>계정에 접속하세요</p>
+          <button
+            onClick={() => setIsDark(!isDark)}
+            style={isDark ? styles.themeBtn.dark : styles.themeBtn.light}
+            title={isDark ? "라이트 모드" : "다크 모드"}
+          >
+            {isDark ? "☀️" : "🌙"}
+          </button>
         </div>
 
-        {error && <div style={styles.error}>{error}</div>}
-        {success && <div style={styles.success}>{success}</div>}
+        {error && <div style={isDark ? styles.alert.dark : styles.alert.light}>{error}</div>}
+        {success && <div style={isDark ? styles.alertSuccess.dark : styles.alertSuccess.light}>{success}</div>}
 
-        <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-          <label style={styles.label}>
-            이메일
+        <form onSubmit={onSubmit} style={styles.form}>
+          <div style={styles.formGroup}>
+            <label style={isDark ? styles.label.dark : styles.label.light}>이메일</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
+              placeholder="your@email.com"
               type="email"
               autoComplete="email"
-              style={styles.input}
+              style={isDark ? styles.input.dark : styles.input.light}
               disabled={loading}
             />
-          </label>
+          </div>
 
-          <label style={styles.label}>
-            비밀번호
-            <div style={{ position: "relative" }}>
+          <div style={styles.formGroup}>
+            <label style={isDark ? styles.label.dark : styles.label.light}>비밀번호</label>
+            <div style={styles.passwordWrapper}>
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 type={showPw ? "text" : "password"}
                 autoComplete="current-password"
-                style={{ ...styles.input, paddingRight: 88 }}
+                style={isDark ? styles.input.dark : styles.input.light}
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
-                style={styles.pwBtn}
+                style={isDark ? styles.toggleBtn.dark : styles.toggleBtn.light}
               >
-                {showPw ? "숨김" : "보기"}
+                {showPw ? "숨기기" : "보기"}
               </button>
             </div>
-          </label>
+          </div>
 
-          <div style={styles.row}>
-            <label style={styles.checkbox}>
-              <input type="checkbox" />
-              <span style={{ marginLeft: 8 }}>로그인 상태 유지</span>
+          <div style={styles.options}>
+            <label style={isDark ? styles.checkbox.dark : styles.checkbox.light}>
+              <input type="checkbox" style={{ cursor: "pointer" }} />
+              <span>로그인 상태 유지</span>
             </label>
-
             <button
               type="button"
               onClick={() => alert("비밀번호 찾기는 준비 중입니다.")}
-              style={styles.linkBtn}
+              style={isDark ? styles.link.dark : styles.link.light}
               disabled={loading}
             >
               비밀번호 찾기
@@ -113,162 +128,149 @@ export default function Login({ onSwitchToSignup, onLoginSuccess }) {
 
           <button 
             type="submit" 
-            style={styles.primaryBtn}
+            style={styles.submitBtn}
             disabled={loading}
+            onMouseEnter={(e) => e.target.style.opacity = "0.9"}
+            onMouseLeave={(e) => e.target.style.opacity = "1"}
           >
-            {loading ? "처리 중..." : "로그인"}
+            {loading ? "로그인 중..." : "로그인"}
           </button>
 
-          <div style={styles.divider}>
-            <span style={styles.dividerText}>또는</span>
-          </div>
+          <div style={isDark ? styles.divider.dark : styles.divider.light}>또는</div>
 
           <button
             type="button"
             onClick={() => alert("소셜 로그인은 준비 중입니다.")}
-            style={styles.secondaryBtn}
+            style={isDark ? styles.socialBtn.dark : styles.socialBtn.light}
+            disabled={loading}
+            onMouseEnter={(e) => e.target.style.opacity = "0.9"}
+            onMouseLeave={(e) => e.target.style.opacity = "1"}
+          >
+            🔵 Google로 계속하기
+          </button>
+        </form>
+
+        <p style={isDark ? styles.footer.dark : styles.footer.light}>
+          계정이 없으신가요?{" "}
+          <button
+            type="button"
+            onClick={onSwitchToSignup}
+            style={isDark ? styles.link.dark : styles.link.light}
             disabled={loading}
           >
-            Google로 계속하기
+            회원가입
           </button>
-
-          <p style={styles.footer}>
-            계정이 없으신가요?{" "}
-            <button
-              type="button"
-              onClick={onSwitchToSignup}
-              style={styles.linkBtnInline}
-              disabled={loading}
-            >
-              회원가입
-            </button>
-          </p>
-        </form>
+        </p>
       </div>
     </div>
   );
 }
 
 const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: 24,
-    background:
-      "radial-gradient(1200px 600px at 20% 10%, rgba(90, 130, 255, 0.25), transparent 55%)," +
-      "radial-gradient(900px 500px at 90% 20%, rgba(130, 255, 210, 0.18), transparent 60%)," +
-      "#0b1020",
-    color: "#e9ecf1",
-    fontFamily:
-      'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif',
+  container: {
+    light: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 16,
+      background: "#ffffff",
+      color: "#1e293b",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif',
+    },
+    dark: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 16,
+      background: "linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%)",
+      color: "#e2e8f0",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif',
+    },
   },
   card: {
-    width: "100%",
-    maxWidth: 420,
-    background: "rgba(255, 255, 255, 0.06)",
-    border: "1px solid rgba(255, 255, 255, 0.12)",
-    borderRadius: 18,
-    padding: 22,
-    boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-    backdropFilter: "blur(10px)",
+    light: {
+      width: "100%",
+      maxWidth: 420,
+      background: "#f8fafc",
+      border: "1px solid rgba(0, 0, 0, 0.08)",
+      borderRadius: 12,
+      padding: 32,
+      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+      backdropFilter: "blur(10px)",
+    },
+    dark: {
+      width: "100%",
+      maxWidth: 420,
+      background: "rgba(30, 41, 59, 0.8)",
+      border: "1px solid rgba(226, 232, 240, 0.1)",
+      borderRadius: 12,
+      padding: 32,
+      boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+      backdropFilter: "blur(10px)",
+    },
   },
-  title: { margin: 0, fontSize: 26, letterSpacing: -0.5 },
-  subTitle: { margin: "8px 0 0", opacity: 0.8, fontSize: 13 },
-  label: { display: "grid", gap: 6, fontSize: 13, opacity: 0.95 },
+  header: {
+    marginBottom: 28,
+    textAlign: "center",
+    position: "relative",
+  },
+  title: {
+    light: { margin: 0, fontSize: 28, fontWeight: 700, color: "#0f172a" },
+    dark: { margin: 0, fontSize: 28, fontWeight: 700, color: "#f1f5f9" },
+  },
+  subtitle: {
+    light: { margin: "8px 0 0", fontSize: 14, color: "#64748b" },
+    dark: { margin: "8px 0 0", fontSize: 14, color: "#94a3b8" },
+  },
+  themeBtn: {
+    light: { position: "absolute", right: 0, top: 0, padding: "8px 12px", borderRadius: 6, border: "1px solid rgba(0, 0, 0, 0.1)", background: "#e2e8f0", fontSize: 18, cursor: "pointer" },
+    dark: { position: "absolute", right: 0, top: 0, padding: "8px 12px", borderRadius: 6, border: "1px solid rgba(226, 232, 240, 0.15)", background: "rgba(226, 232, 240, 0.08)", fontSize: 18, cursor: "pointer" },
+  },
+  form: { display: "grid", gap: 16 },
+  formGroup: { display: "grid", gap: 6 },
+  label: {
+    light: { fontSize: 13, fontWeight: 500, color: "#1e293b" },
+    dark: { fontSize: 13, fontWeight: 500, color: "#e2e8f0" },
+  },
   input: {
-    width: "100%",
-    padding: "12px 12px",
-    borderRadius: 12,
-    border: "1px solid rgba(255, 255, 255, 0.14)",
-    background: "rgba(10, 14, 30, 0.55)",
-    color: "#e9ecf1",
-    outline: "none",
-    fontSize: 14,
+    light: { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid rgba(0, 0, 0, 0.1)", background: "#ffffff", color: "#1e293b", fontSize: 14, outline: "none" },
+    dark: { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid rgba(226, 232, 240, 0.2)", background: "rgba(226, 232, 240, 0.05)", color: "#f1f5f9", fontSize: 14, outline: "none" },
   },
-  pwBtn: {
-    position: "absolute",
-    right: 8,
-    top: 8,
-    height: 34,
-    padding: "0 12px",
-    borderRadius: 10,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(255,255,255,0.08)",
-    color: "#e9ecf1",
-    cursor: "pointer",
-    fontSize: 12,
+  passwordWrapper: { position: "relative" },
+  toggleBtn: {
+    light: { position: "absolute", right: 10, top: 10, padding: "4px 8px", background: "transparent", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" },
+    dark: { position: "absolute", right: 10, top: 10, padding: "4px 8px", background: "transparent", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" },
   },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10,
+  options: { display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 },
+  checkbox: {
+    light: { display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "#1e293b" },
+    dark: { display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "#e2e8f0" },
   },
-  checkbox: { display: "flex", alignItems: "center", fontSize: 13, opacity: 0.9 },
-  linkBtn: {
-    background: "transparent",
-    border: "none",
-    color: "#a8c0ff",
-    cursor: "pointer",
-    fontSize: 13,
-    padding: 0,
+  link: {
+    light: { background: "none", border: "none", color: "#3b82f6", cursor: "pointer", fontSize: 13, padding: 0, fontWeight: 500 },
+    dark: { background: "none", border: "none", color: "#60a5fa", cursor: "pointer", fontSize: 13, padding: 0, fontWeight: 500 },
   },
-  primaryBtn: {
-    marginTop: 6,
-    padding: "12px 14px",
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.12)",
-    background: "linear-gradient(135deg, rgba(90,130,255,0.95), rgba(130,255,210,0.85))",
-    color: "#0b1020",
-    fontWeight: 800,
-    cursor: "pointer",
-    fontSize: 14,
+  submitBtn: { padding: "11px 16px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #3b82f6, #60a5fa)", color: "#ffffff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginTop: 8 },
+  divider: {
+    light: { textAlign: "center", fontSize: 12, color: "#94a3b8", margin: "8px 0" },
+    dark: { textAlign: "center", fontSize: 12, color: "#64748b", margin: "8px 0" },
   },
-  secondaryBtn: {
-    padding: "12px 14px",
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.14)",
-    background: "rgba(255,255,255,0.06)",
-    color: "#e9ecf1",
-    cursor: "pointer",
-    fontSize: 14,
+  socialBtn: {
+    light: { padding: "11px 16px", borderRadius: 8, border: "1px solid rgba(0, 0, 0, 0.1)", background: "#f1f5f9", color: "#1e293b", fontWeight: 500, fontSize: 14, cursor: "pointer" },
+    dark: { padding: "11px 16px", borderRadius: 8, border: "1px solid rgba(226, 232, 240, 0.15)", background: "rgba(226, 232, 240, 0.08)", color: "#e2e8f0", fontWeight: 500, fontSize: 14, cursor: "pointer" },
   },
-  divider: { position: "relative", textAlign: "center", margin: "10px 0 2px" },
-  dividerText: {
-    display: "inline-block",
-    padding: "0 10px",
-    fontSize: 12,
-    opacity: 0.7,
-    background: "rgba(11, 16, 32, 0.65)",
-    borderRadius: 999,
+  footer: {
+    light: { textAlign: "center", fontSize: 13, color: "#64748b", marginTop: 16 },
+    dark: { textAlign: "center", fontSize: 13, color: "#94a3b8", marginTop: 16 },
   },
-  footer: { margin: "6px 0 0", fontSize: 13, opacity: 0.9, textAlign: "center" },
-  linkBtnInline: {
-    background: "transparent",
-    border: "none",
-    color: "#a8c0ff",
-    cursor: "pointer",
-    fontSize: 13,
-    padding: 0,
-    fontWeight: 700,
+  alert: {
+    light: { padding: "12px 14px", borderRadius: 8, marginBottom: 16, fontSize: 13, background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#dc2626" },
+    dark: { padding: "12px 14px", borderRadius: 8, marginBottom: 16, fontSize: 13, background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5" },
   },
-  error: {
-    padding: "10px 12px",
-    borderRadius: 10,
-    background: "rgba(255, 80, 80, 0.15)",
-    border: "1px solid rgba(255, 80, 80, 0.3)",
-    color: "#ff9999",
-    fontSize: 12,
-    marginBottom: 12,
-  },
-  success: {
-    padding: "10px 12px",
-    borderRadius: 10,
-    background: "rgba(100, 255, 150, 0.15)",
-    border: "1px solid rgba(100, 255, 150, 0.3)",
-    color: "#90ff99",
-    fontSize: 12,
-    marginBottom: 12,
+  alertSuccess: {
+    light: { padding: "12px 14px", borderRadius: 8, marginBottom: 16, fontSize: 13, background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)", color: "#16a34a" },
+    dark: { padding: "12px 14px", borderRadius: 8, marginBottom: 16, fontSize: 13, background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)", color: "#86efac" },
   },
 };

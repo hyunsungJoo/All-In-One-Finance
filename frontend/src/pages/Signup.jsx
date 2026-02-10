@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 
 export default function Signup({ onSwitchToLogin }) {
   const [email, setEmail] = useState("");
@@ -9,6 +10,14 @@ export default function Signup({ onSwitchToLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    return saved ? saved === "dark" : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -61,186 +70,216 @@ export default function Signup({ onSwitchToLogin }) {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={styles.container}>
       <div style={styles.card}>
-        <div style={{ marginBottom: 18 }}>
+        <div style={styles.header}>
           <h1 style={styles.title}>회원가입</h1>
-          <p style={styles.subTitle}>All-In-One-Finance 계정을 만드세요.</p>
+          <p style={styles.subtitle}>새로운 계정을 만드세요</p>
         </div>
 
-        {error && <div style={styles.error}>{error}</div>}
-        {success && <div style={styles.success}>{success}</div>}
+        {error && <div style={styles.alert}>{error}</div>}
+        {success && <div style={{ ...styles.alert, ...styles.successAlert }}>{success}</div>}
 
-        <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-          <label style={styles.label}>
-            이메일
+        <form onSubmit={onSubmit} style={styles.form}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>이메일</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
+              placeholder="your@email.com"
               type="email"
               autoComplete="email"
               style={styles.input}
               disabled={loading}
             />
-          </label>
+          </div>
 
-          <label style={styles.label}>
-            비밀번호
-            <div style={{ position: "relative" }}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>비밀번호</label>
+            <div style={styles.passwordWrapper}>
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 type={showPw ? "text" : "password"}
                 autoComplete="new-password"
-                style={{ ...styles.input, paddingRight: 88 }}
+                style={styles.input}
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
-                style={styles.pwBtn}
+                style={styles.toggleBtn}
               >
-                {showPw ? "숨김" : "보기"}
+                {showPw ? "숨기기" : "보기"}
               </button>
             </div>
-          </label>
+          </div>
 
-          <label style={styles.label}>
-            비밀번호 확인
-            <div style={{ position: "relative" }}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>비밀번호 확인</label>
+            <div style={styles.passwordWrapper}>
               <input
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 placeholder="••••••••"
                 type={showPwConfirm ? "text" : "password"}
                 autoComplete="new-password"
-                style={{ ...styles.input, paddingRight: 88 }}
+                style={styles.input}
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPwConfirm((v) => !v)}
-                style={styles.pwBtn}
+                style={styles.toggleBtn}
               >
-                {showPwConfirm ? "숨김" : "보기"}
+                {showPwConfirm ? "숨기기" : "보기"}
               </button>
             </div>
-          </label>
+          </div>
 
           <button 
             type="submit" 
-            style={styles.primaryBtn}
+            style={styles.submitBtn}
+            disabled={loading}
+            onMouseEnter={(e) => e.target.style.opacity = "0.9"}
+            onMouseLeave={(e) => e.target.style.opacity = "1"}
+          >
+            {loading ? "가입 중..." : "회원가입"}
+          </button>
+        </form>
+
+        <p style={styles.footer}>
+          이미 계정이 있나요?{" "}
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            style={styles.link}
             disabled={loading}
           >
-            {loading ? "처리 중..." : "회원가입"}
+            로그인
           </button>
-
-          <p style={styles.footer}>
-            이미 계정이 있으신가요?{" "}
-            <button
-              type="button"
-              onClick={onSwitchToLogin}
-              style={styles.linkBtnInline}
-              disabled={loading}
-            >
-              로그인
-            </button>
-          </p>
-        </form>
+        </p>
       </div>
     </div>
   );
 }
 
 const styles = {
-  page: {
+  container: {
     minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: 24,
-    background:
-      "radial-gradient(1200px 600px at 20% 10%, rgba(90, 130, 255, 0.25), transparent 55%)," +
-      "radial-gradient(900px 500px at 90% 20%, rgba(130, 255, 210, 0.18), transparent 60%)," +
-      "#0b1020",
-    color: "#e9ecf1",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    background: "linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%)",
+    color: "#e2e8f0",
     fontFamily:
-      'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif',
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif',
   },
   card: {
     width: "100%",
     maxWidth: 420,
-    background: "rgba(255, 255, 255, 0.06)",
-    border: "1px solid rgba(255, 255, 255, 0.12)",
-    borderRadius: 18,
-    padding: 22,
-    boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+    background: "rgba(30, 41, 59, 0.8)",
+    border: "1px solid rgba(226, 232, 240, 0.1)",
+    borderRadius: 12,
+    padding: 32,
+    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
     backdropFilter: "blur(10px)",
   },
-  title: { margin: 0, fontSize: 26, letterSpacing: -0.5 },
-  subTitle: { margin: "8px 0 0", opacity: 0.8, fontSize: 13 },
-  label: { display: "grid", gap: 6, fontSize: 13, opacity: 0.95 },
+  header: {
+    marginBottom: 28,
+    textAlign: "center",
+  },
+  title: {
+    margin: 0,
+    fontSize: 28,
+    fontWeight: 700,
+    color: "#f1f5f9",
+  },
+  subtitle: {
+    margin: "8px 0 0",
+    fontSize: 14,
+    color: "#94a3b8",
+  },
+  form: {
+    display: "grid",
+    gap: 16,
+  },
+  formGroup: {
+    display: "grid",
+    gap: 6,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: "#e2e8f0",
+  },
   input: {
     width: "100%",
-    padding: "12px 12px",
-    borderRadius: 12,
-    border: "1px solid rgba(255, 255, 255, 0.14)",
-    background: "rgba(10, 14, 30, 0.55)",
-    color: "#e9ecf1",
+    padding: "10px 12px",
+    borderRadius: 8,
+    border: "1px solid rgba(226, 232, 240, 0.2)",
+    background: "rgba(226, 232, 240, 0.05)",
+    color: "#f1f5f9",
+    fontSize: 14,
     outline: "none",
-    fontSize: 14,
+    transition: "border-color 0.2s",
   },
-  pwBtn: {
+  passwordWrapper: {
+    position: "relative",
+  },
+  toggleBtn: {
     position: "absolute",
-    right: 8,
-    top: 8,
-    height: 34,
-    padding: "0 12px",
-    borderRadius: 10,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(255,255,255,0.08)",
-    color: "#e9ecf1",
-    cursor: "pointer",
-    fontSize: 12,
-  },
-  primaryBtn: {
-    marginTop: 6,
-    padding: "12px 14px",
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.12)",
-    background: "linear-gradient(135deg, rgba(90,130,255,0.95), rgba(130,255,210,0.85))",
-    color: "#0b1020",
-    fontWeight: 800,
-    cursor: "pointer",
-    fontSize: 14,
-  },
-  footer: { margin: "6px 0 0", fontSize: 13, opacity: 0.9, textAlign: "center" },
-  linkBtnInline: {
+    right: 10,
+    top: 10,
+    padding: "4px 8px",
     background: "transparent",
     border: "none",
-    color: "#a8c0ff",
+    color: "#64748b",
+    fontSize: 12,
+    cursor: "pointer",
+    transition: "color 0.2s",
+  },
+  submitBtn: {
+    padding: "11px 16px",
+    borderRadius: 8,
+    border: "none",
+    background: "linear-gradient(135deg, #3b82f6, #60a5fa)",
+    color: "#ffffff",
+    fontWeight: 600,
+    fontSize: 14,
+    cursor: "pointer",
+    transition: "opacity 0.2s",
+    marginTop: 8,
+  },
+  footer: {
+    textAlign: "center",
+    fontSize: 13,
+    color: "#94a3b8",
+    marginTop: 16,
+  },
+  link: {
+    background: "none",
+    border: "none",
+    color: "#60a5fa",
     cursor: "pointer",
     fontSize: 13,
     padding: 0,
-    fontWeight: 700,
+    fontWeight: 500,
   },
-  error: {
-    padding: "10px 12px",
-    borderRadius: 10,
-    background: "rgba(255, 80, 80, 0.15)",
-    border: "1px solid rgba(255, 80, 80, 0.3)",
-    color: "#ff9999",
-    fontSize: 12,
-    marginBottom: 12,
+  alert: {
+    padding: "12px 14px",
+    borderRadius: 8,
+    marginBottom: 16,
+    fontSize: 13,
+    background: "rgba(239, 68, 68, 0.1)",
+    border: "1px solid rgba(239, 68, 68, 0.3)",
+    color: "#fca5a5",
   },
-  success: {
-    padding: "10px 12px",
-    borderRadius: 10,
-    background: "rgba(100, 255, 150, 0.15)",
-    border: "1px solid rgba(100, 255, 150, 0.3)",
-    color: "#90ff99",
-    fontSize: 12,
-    marginBottom: 12,
+  successAlert: {
+    background: "rgba(34, 197, 94, 0.1)",
+    border: "1px solid rgba(34, 197, 94, 0.3)",
+    color: "#86efac",
   },
 };
